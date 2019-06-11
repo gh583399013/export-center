@@ -1,5 +1,7 @@
 package com.ft.export.impl;
 
+import com.ft.business.api.IOrderService;
+import com.ft.business.param.MyOrderParam;
 import com.ft.export.api.IExportCommonService;
 import com.ft.export.api.IExportService;
 import com.ft.export.enums.ExportTypeEnum;
@@ -22,5 +24,11 @@ public class ExportServiceImpl implements IExportService{
     public <T> void doExportJob(ExportTypeEnum exportTypeEnum, T t) {
         IExportCommonService exportCommonService = springContextUtil.getRealExportService(exportTypeEnum);
         Long totalCount = exportCommonService.findExportListCount(t);
+        System.out.println(totalCount);
+    }
+
+    @Override
+    public void asd() {
+        System.out.println("@@@@@@@@@@@@@@@@");
     }
 }

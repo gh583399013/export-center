@@ -15,4 +15,6 @@ public interface IExportService {
      * @param <T>
      */
     <T> void doExportJob(ExportTypeEnum exportTypeEnum, T t);
+
+    void asd();
 }

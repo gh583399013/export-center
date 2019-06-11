@@ -12,7 +12,7 @@
     <artifactId>export-center-core</artifactId>
 
     <dependencies>
-        <!-- spring全家桶 -->
+        <!-- spring全家桶start -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -62,13 +62,16 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- spring全家桶end -->
 
-        <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>export-center-api</artifactId>
-        </dependency>
-
+        <!-- 第三方组件依赖start -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -78,6 +81,30 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
+
+        <!-- dubbo依赖 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.sgroschupf</groupId>
+            <artifactId>zkclient</artifactId>
+        </dependency>
+        <!-- 第三方组件依赖end -->
+
+        <!-- 业务依赖start -->
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>export-center-api</artifactId>
+        </dependency>
+        <!-- 业务依赖end -->
     </dependencies>
 
 </project>

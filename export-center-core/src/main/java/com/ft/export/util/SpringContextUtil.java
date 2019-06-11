@@ -20,7 +20,7 @@ public class SpringContextUtil implements ApplicationContextAware {
     //取值参考 https://blog.csdn.net/qq_23927391/article/details/80625578
     public <T>T getRealExportService(ExportTypeEnum exportTypeEnum){
         //(T)applicationContext.getBean(exportTypeEnum.getBeanId());
-        return (T)applicationContext.getBean(exportTypeEnum.getBeanId(), exportTypeEnum.getDataSourceClass());
+        return (T)applicationContext.getBean(exportTypeEnum.getBeanId());
     }
 
     //取值参考 https://blog.csdn.net/qq_23927391/article/details/80625578
