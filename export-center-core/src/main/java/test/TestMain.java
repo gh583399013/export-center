@@ -1,5 +1,9 @@
 package test;
 
+import com.alibaba.fastjson.JSON;
+import com.ft.business.param.MyOrderParam;
+import com.ft.export.enums.ExportTypeEnum;
+
 /**
  * @author mask
  * @date 2019/6/10 19:08
@@ -12,6 +16,10 @@ public class TestMain {
         String jsonStr = "{\"orderNo\":\"SO123\"}";
         try {
 
+
+            //MyOrderParam myOrderParam = JSON.parseObject(jsonStr, ExportTypeEnum.OMS_MY_ORDER_PAGE.getParamClz());
+
+            MyOrderParam myOrderParam1 = JSON.parseObject(jsonStr, MyOrderParam.class);
 
 //            Map<String, Class> map = new HashMap<>();
 //            map.put("Asd", MyOrderParam.class);

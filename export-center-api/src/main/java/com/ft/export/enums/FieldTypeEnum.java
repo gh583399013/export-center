@@ -4,19 +4,19 @@ import java.io.Serializable;
 
 /**
  * @author mask
- * @date 2019/6/10 20:00
+ * @date 2019/6/12 17:13
  * @desc
  */
-public enum BusinessEnum implements Serializable{
-    SYSTEM_OMS(1, "订单系统"),
-    SYSTEM_WMS(2, "仓储系统"),
-    SYSTEM_FMS(3, "财务系统");
+public enum FieldTypeEnum implements Serializable{
+    Str(1, "字符串"),
+    Number(2, "数字"),
+    Date(3, "日期"),
+    FormatStr(4, "需格式化文本");
 
-    private BusinessEnum(Integer value, String desc){
+    private FieldTypeEnum(Integer value, String desc){
         this.value = value;
         this.desc = desc;
     }
-
     private Integer value;
     private String desc;
 
