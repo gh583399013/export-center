@@ -51,7 +51,8 @@ public class DataReader {
             }
         }
 
-        List<Map<String, Object>> list = new ArrayList<>();
+        //List<Map<String, Object>> 装的一个某个对象t中所有要导出字段的数据的 字段-数据键值对
+        List<List<Map<String, Object>>> exportDataList = new ArrayList<>();
         for (T t : dataList) {
 
             Map<String, Object> map = new HashMap<>();
@@ -69,16 +70,16 @@ public class DataReader {
                     e.printStackTrace();
                 }
             }
-            list.add(map);
+            //list.add(map);
         }
 
-        for (Map<String, Object> stringObjectMap : list) {
-            for (String s : stringObjectMap.keySet()) {
-                System.out.print(s + "-" + stringObjectMap.get(s));
-                System.out.println();
-            }
-            System.out.println("#################");
-        }
+//        for (Map<String, Object> stringObjectMap : list) {
+//            for (String s : stringObjectMap.keySet()) {
+//                System.out.print(s + "-" + stringObjectMap.get(s));
+//                System.out.println();
+//            }
+//            System.out.println("#################");
+//        }
     }
 
 

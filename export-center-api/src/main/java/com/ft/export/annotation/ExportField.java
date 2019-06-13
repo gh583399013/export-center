@@ -32,4 +32,10 @@ public @interface ExportField {
      * @return
      */
     String formatStr() default "";
+
+    /**
+     * 小数默认保存精度
+     * @return
+     */
+    int precision() default 2;
 }
