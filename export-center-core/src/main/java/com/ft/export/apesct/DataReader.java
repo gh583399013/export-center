@@ -54,19 +54,30 @@ public class DataReader {
         List<Map<String, Object>> list = new ArrayList<>();
         for (T t : dataList) {
 
-            for (Method method : methodMap.values()) {
+            Map<String, Object> map = new HashMap<>();
+
+            for (String methodName : methodMap.keySet()) {
                 try {
-                    Object object = method.invoke(t);
-                    System.out.println(object);
+                    Object object = methodMap.get(methodName).invoke(t);
+                    if (object instanceof Double){
+                        System.out.println("芝惊"+methodName);
+                    }
+                    map.put(methodName, object);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
             }
-//            for (String s : fieldList) {
-//                Object object =
-//            }
+            list.add(map);
+        }
+
+        for (Map<String, Object> stringObjectMap : list) {
+            for (String s : stringObjectMap.keySet()) {
+                System.out.print(s + "-" + stringObjectMap.get(s));
+                System.out.println();
+            }
+            System.out.println("#################");
         }
     }
 
@@ -98,7 +109,14 @@ public class DataReader {
 //        }
 //        System.out.println(1231);
 
+
+        MyOrderPageResp myOrderPageResp = new MyOrderPageResp();
+        myOrderPageResp.setOrderNo("SO19921226");
+        myOrderPageResp.setOrderTime(new Date());
+        myOrderPageResp.setOrderStatus(2);
+        myOrderPageResp.setTotalPrice(new BigDecimal(100.22));
+        myOrderPageResp.setDoublePride(399.12);
         DataReader dataReader = new DataReader();
-        dataReader.dealDate(Arrays.asList(new MyOrderPageResp()));
+        dataReader.createExcel(Arrays.asList(myOrderPageResp), Arrays.asList("222"));
     }
 }
