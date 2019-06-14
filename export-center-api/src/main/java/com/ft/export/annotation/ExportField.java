@@ -14,6 +14,12 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 public @interface ExportField {
     /**
+     * 列字段描述
+     * @return
+     */
+    String headName();
+
+    /**
      * 列属性
      * @return
      */

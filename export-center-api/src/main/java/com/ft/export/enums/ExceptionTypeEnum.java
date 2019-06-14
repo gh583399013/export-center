@@ -8,6 +8,7 @@ import java.io.Serializable;
  * @desc
  */
 public enum ExceptionTypeEnum implements Serializable{
+    FILL_ERROR(0, "填充数据报错"),
     FIELD_EMPTY(1, "导出列头为空"),
     DATA_EMPTY(2, "导出列头为空");
 

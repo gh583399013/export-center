@@ -13,7 +13,7 @@ public interface IExportCommonService<T, V> {
      * @param t
      * @return
      */
-    Long findExportListCount(T t);
+    Integer findExportListCount(T t);
 
     /**
      * 分页查询导出的数据

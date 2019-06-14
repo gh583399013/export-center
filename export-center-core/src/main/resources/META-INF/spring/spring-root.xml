@@ -9,15 +9,14 @@
 	                    http://www.springframework.org/schema/mvc
 	                    http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 	<!-- 加载配置文件 -->
-	<!--<context:property-placeholder location="classpath:*.properties" />-->
 
+	<!--<context:property-placeholder location="classpath:/conf/${env}_export_center_config.properties" ignore-unresolvable="true" />-->
 	<!-- 与上面的配置等价，下面的更容易理解 -->
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations"> <!-- PropertyPlaceholderConfigurer类中有个locations属性，接收的是一个数组，即我们可以在下面配好多个properties文件 -->
 			<array>
-				<value>classpath:conf/jdbc.properties</value>
-				<value>classpath:conf/dubbo.properties</value>
-				<value>classpath:conf/redis.properties</value>
+				<value>classpath:env/${env}_export_center_config.properties</value>
+				<value>classpath:conf/common.properties</value>
 			</array>
 		</property>
 	</bean>

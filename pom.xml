@@ -113,6 +113,13 @@
         <artifactId>poi-ooxml</artifactId>
         <version>4.1.0</version>
       </dependency>
+
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.3.1</version>
+      </dependency>
       <!-- 第三方组件依赖end -->
 
       <!-- 业务依赖start -->

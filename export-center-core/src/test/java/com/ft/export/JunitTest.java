@@ -23,7 +23,7 @@ public class JunitTest extends BaseTest {
     @Test
     public void test002(){
         System.out.println("11111");
-        exportService.doExportJob(ExportTypeEnum.OMS_MY_ORDER_PAGE, new MyOrderParam());
+        //exportService.doExportJob(ExportTypeEnum.OMS_MY_ORDER_PAGE, new MyOrderParam());
         System.out.println("22222");
     }
 
