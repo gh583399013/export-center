@@ -39,7 +39,7 @@ public class ExportServiceImpl implements IExportService{
         IExportCommonService exportCommonService = springContextUtil.getRealExportService(exportInfo.getExportTypeEnum());
         Integer totalCount = exportCommonService.findExportListCount(t);
 
-        int totalPageCount = totalCount / ExportCenterCommonConfig.pageCount;
+        int totalPageCount = (totalCount / ExportCenterCommonConfig.pageCount + 1);
         List<T> dataList = new ArrayList<>(100000);
 
         String fileName = "asdasd";
@@ -47,9 +47,9 @@ public class ExportServiceImpl implements IExportService{
         ExportCoreInfo exportCoreInfo = null;
 
         int sheetNo = 0;
-        for (int i = 1; i < totalPageCount; i++) {
+        for (int page = 1; page <= totalPageCount; page++) {
             //如果查询次数 > 50次 sheetNo要变成1了 然后dataList要清空
-            int nextSheetNo = (i - 1) / ExportCenterCommonConfig.sheetMaxQueryTimes;
+            int nextSheetNo = (page - 1) / ExportCenterCommonConfig.sheetMaxQueryTimes;
             if(sheetNo != nextSheetNo){
                 ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
                 sheetNo = nextSheetNo;
