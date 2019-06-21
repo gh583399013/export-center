@@ -12,7 +12,7 @@ public class ExportCenterCommonConfig implements Serializable{
     public static final Integer pageCount = 2000;
 
     //单sheet最多写的行数
-    public static final Integer sheetMaxCount = 100000;
+    public static final Integer sheetMaxCount = 50000;
 
     //写满单sheet需要查询最大次数
     public static final Integer sheetMaxQueryTimes = sheetMaxCount / pageCount;
