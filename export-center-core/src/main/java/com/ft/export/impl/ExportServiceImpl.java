@@ -70,7 +70,6 @@ public class ExportServiceImpl implements IExportService{
         //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
         ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
 
-
         long endTime = System.currentTimeMillis();
         System.out.println("生成结束 : " + (endTime- beginTime));
         System.out.println("dubbo接口数据耗时 : " + queryTime);

@@ -215,7 +215,7 @@ public class ExcelCreator {
 		try {
 			checkIlegal(dataList, exportFieldInfo);
 
-			Workbook workbook = createWorkbook(exportFieldInfo, sheetNo);
+			Workbook workbook = createWorkBook(exportFieldInfo, sheetNo);
 			workbook = fillData(workbook, dataList, exportFieldInfo, sheetNo);
 			FileOutputStream fos = null;
 			if (ExcelUtil.VERSION_2003.equals(exportFieldInfo.getVersion())) {
@@ -273,13 +273,12 @@ public class ExcelCreator {
 	private static Workbook readExcel(ExportCoreInfo exportFieldInfo){
 		String absolutePath = exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + (ExcelUtil.VERSION_2007.equals(exportFieldInfo.getVersion()) ? ".xlsx":"xls");
 		Workbook wb = null;
-		InputStream is = null;
 		try {
 			File exportFile = new File(absolutePath);
 			if(!exportFile.exists()){
 				return null;
 			}
-			is = new FileInputStream(exportFile);
+			InputStream is = new FileInputStream(exportFile);
 			if(ExcelUtil.VERSION_2003.equals(exportFieldInfo.getVersion())){
 				wb = new HSSFWorkbook(is);
 			}else if(ExcelUtil.VERSION_2007.equals(exportFieldInfo.getVersion())){
@@ -287,6 +286,7 @@ public class ExcelCreator {
 			}else{
 				wb = null;
 			}
+			is.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -296,7 +296,7 @@ public class ExcelCreator {
 	}
 
 
-	public static Workbook createWorkbook(ExportCoreInfo exportFieldInfo, Integer sheetNo) {
+	public static Workbook createWorkBook(ExportCoreInfo exportFieldInfo, Integer sheetNo) {
 		Workbook workbook = readExcel(exportFieldInfo);
 		if(workbook == null){
 			if(VERSION_2003.equals(exportFieldInfo.getVersion())){
