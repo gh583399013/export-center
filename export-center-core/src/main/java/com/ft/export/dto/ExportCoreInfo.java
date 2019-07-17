@@ -13,7 +13,10 @@ import java.util.Map;
  */
 @Data
 public class ExportCoreInfo implements Serializable{
-    /*导出文件路径*/
+    /*导出文件绝对路径*/
+    private String fileAbsolutePath;
+
+    /*导出文件目录*/
     private String filePath;
 
     /*导出文件名*/

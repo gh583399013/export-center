@@ -9,6 +9,8 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class QiNiuYunFileUtil {
 
+    private static Logger logger = LogManager.getLogger(QiNiuYunFileUtil.class);
 
     private static String accessKey;
     @Value("${qiniuyun.access.key}")
@@ -78,6 +81,7 @@ public class QiNiuYunFileUtil {
             //System.out.println(putRet.key);
             //System.out.println(putRet.hash);
         } catch (QiniuException ex) {
+            logger.error("{}文件上传七牛云服务器失败", key);
             Response r = ex.response;
             System.err.println(r.toString());
             try {

@@ -35,6 +35,10 @@ import java.util.*;
 public class ExcelCreator {
     public static final String VERSION_2003 = "2003";
 	public static final String VERSION_2007 = "2007";
+    public static final String SUFFIX_2003 = ".xls";
+    public static final String SUFFIX_2007 = ".xlsx";
+
+
 	private static Logger logger = LoggerFactory.getLogger(ExcelCreator.class);
 	/* 列名row单元格高 */
 	private static final float PropertyHeight = 30f;
@@ -151,6 +155,16 @@ public class ExcelCreator {
 		return resultMap;
 	}
 
+    /**
+     * 生成导出核心信息类
+     * @param dataList
+     * @param fieldList
+     * @param filePath
+     * @param fileName
+     * @param version
+     * @param <T>
+     * @return
+     */
 	public static <T>ExportCoreInfo getExportCoreInfo(List<T> dataList, List<String> fieldList, String filePath, String fileName, String version){
 		Class originClazz = dataList.get(0).getClass();
 
@@ -190,7 +204,8 @@ public class ExcelCreator {
 
 		ExportCoreInfo exportCoreInfo = new ExportCoreInfo();
 		exportCoreInfo.setFilePath(filePath);
-		exportCoreInfo.setFileName(fileName);
+		exportCoreInfo.setFileName(fileName + (VERSION_2007.equals(version) ? SUFFIX_2007:SUFFIX_2003));
+        exportCoreInfo.setFileAbsolutePath(exportCoreInfo.getFilePath() + exportCoreInfo.getFileName());
 		exportCoreInfo.setClazz(originClazz);
 		exportCoreInfo.setFieldList(fieldList);
 		exportCoreInfo.setHeadNameList(headNameList);
@@ -199,7 +214,7 @@ public class ExcelCreator {
 		return exportCoreInfo;
 	}
 
-	private static <T> void checkIlegal(List<T> dataList, ExportCoreInfo exportFieldInfo){
+	private static <T> void checkIllegal(List<T> dataList, ExportCoreInfo exportFieldInfo){
 		if(StringUtils.isEmpty(exportFieldInfo.getFilePath())){
 			throw new ExportException(ExceptionTypeEnum.FIELD_EMPTY);
 		}
@@ -213,17 +228,12 @@ public class ExcelCreator {
 
 	public static <T> void outputExcelToDisk(List<T> dataList, ExportCoreInfo exportFieldInfo, Integer sheetNo) {
 		try {
-			checkIlegal(dataList, exportFieldInfo);
+			checkIllegal(dataList, exportFieldInfo);
 			Workbook workbook = createWorkBook(exportFieldInfo, sheetNo);
 			workbook = fillData(workbook, dataList, exportFieldInfo, sheetNo);
 			FileOutputStream fos = null;
 
-			File exportFile = null;
-			if (ExcelUtil.VERSION_2003.equals(exportFieldInfo.getVersion())) {
-				exportFile = new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xls");
-			} else {
-				exportFile = new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xlsx");
-			}
+			File exportFile = new File(exportFieldInfo.getFileAbsolutePath());
 			fos = new FileOutputStream(exportFile);
 			workbook.write(fos);
 			fos.close();
@@ -279,7 +289,7 @@ public class ExcelCreator {
 
 	//读取excel
 	private static Workbook readExcel(ExportCoreInfo exportFieldInfo){
-		String absolutePath = exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + (ExcelUtil.VERSION_2007.equals(exportFieldInfo.getVersion()) ? ".xlsx":"xls");
+		String absolutePath = exportFieldInfo.getFileAbsolutePath();
 		Workbook wb = null;
 		try {
 			File exportFile = new File(absolutePath);

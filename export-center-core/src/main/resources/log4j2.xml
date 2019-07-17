@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <properties>
+        <property name="LOG_HOME">D:/logs</property>
+        <property name="EXCEL_CREATOR_LOG_FILE_NAME">excelCreator</property>
+        <property name="EXPORT_CENTER_LOG_FILE_NAME">exportCenter</property>
+    </properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+
+        <RollingRandomAccessFile name="ExportCenterLog"
+                                 fileName="${LOG_HOME}/${EXPORT_CENTER_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${EXPORT_CENTER_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="ExcelCreatorLog"
+                                 fileName="${LOG_HOME}/${EXCEL_CREATOR_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${EXCEL_CREATOR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingRandomAccessFile>
+
+
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ExportCenterLog" />
+        </Root>
+
+        <Logger name="com.ft.export.util" level="info" additivity="false">
+            <AppenderRef ref="ExcelCreatorLog" />
+        </Logger>
+
+    </Loggers>
+</Configuration>
