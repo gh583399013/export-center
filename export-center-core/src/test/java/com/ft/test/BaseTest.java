@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
  */  
 @RunWith(SpringJUnit4ClassRunner.class)    
 @WebAppConfiguration    
-@ContextConfiguration({"classpath*:/META-INF/spring/spring-root.xml","classpath*:/META-INF/spring/applicationContext-dubbo.xml"})
+@ContextConfiguration({"classpath*:/META-INF/spring/*.xml"})
 //当然 你可以声明一个事务管理 每个单元测试都进行事务回滚 无论成功与否    
 //@TransactionConfiguration(defaultRollback = true)    
 //@Transactional   

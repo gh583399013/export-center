@@ -181,9 +181,12 @@ public class ExcelCreator {
 					exportFieldDto.setExportField(exportField);
 					if(FieldTypeEnum.FormatStr.equals(exportField.fieldTypeEnum())){
 						Map<String, String> valueDescMap = new HashMap<>();
-						valueDescMap.put("1","1");
-						valueDescMap.put("2","2");
-						valueDescMap.put("3","3");
+						String formatStr = exportField.formatStr();
+						String[] formatStrArr = formatStr.split("&");
+						for (String s : formatStrArr) {
+							String[] keyValue = s.split("=");
+							valueDescMap.put(keyValue[0], keyValue[1]);
+						}
 						exportFieldDto.setValueDescMap(valueDescMap);
 					}
 					try {

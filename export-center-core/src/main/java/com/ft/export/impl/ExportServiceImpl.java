@@ -1,6 +1,5 @@
 package com.ft.export.impl;
 
-import com.ft.business.resp.MyOrderPageResp;
 import com.ft.export.api.IExportCommonService;
 import com.ft.export.api.IExportService;
 import com.ft.export.constant.ExportCenterCommonConfig;
@@ -13,11 +12,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,14 +35,11 @@ public class ExportServiceImpl implements IExportService{
     @Autowired
     private SpringContextUtil springContextUtil;
 
-    @Override
-    public <T> void doExportJob(ExportInfo exportInfo, T t) {
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
 
-        long beginTime = System.currentTimeMillis();
-        long queryTime = 0L;
-
+    private <T> void doExportJobCore(ExportInfo exportInfo, T t){
         IExportCommonService exportCommonService = springContextUtil.getExportCommonService(exportInfo.getExportTypeEnum());
-        //IOrderService orderService = (IOrderService)springContextUtil.getRealExportService(exportInfo.getExportTypeEnum(), exportInfo.getExportTypeEnum().getDataSourceClass());
         Integer totalCount = exportCommonService.findExportListCount(t);
 
         //0-2000 查询1次 2001-4000查询两次
@@ -51,7 +47,6 @@ public class ExportServiceImpl implements IExportService{
         List<T> dataList = new ArrayList<>(100000);
 
         String fileName = "测试10w行数据";
-
         ExportCoreInfo exportCoreInfo = null;
 
         int sheetNo = 0;
@@ -65,11 +60,8 @@ public class ExportServiceImpl implements IExportService{
                 sheetNo = nextSheetNo;
                 dataList.clear();
             }
-            long a = System.currentTimeMillis();
-            List<T> currentList = exportCommonService.findExportList(t);
-            long b = System.currentTimeMillis();
-            queryTime = queryTime + (b-a);
 
+            List<T> currentList = exportCommonService.findExportList(t);
             if(exportCoreInfo == null){
                 exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
             }
@@ -78,29 +70,34 @@ public class ExportServiceImpl implements IExportService{
         //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
         ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
 
-        long endTime = System.currentTimeMillis();
-        System.out.println("生成结束 : " + (endTime- beginTime));
-        System.out.println("dubbo接口数据耗时 : " + queryTime);
+        //TODO 更新到处结果表
+    }
+
+    @Override
+    public <T> void doExportJob(final ExportInfo exportInfo, final T t) {
+        //TODO 记录到处记录
+        //加入到线程池执行核心到处功能
+        try {
+            taskExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    doExportJobCore(exportInfo, t);
+                }
+            });
+        }catch (TaskRejectedException tre){
+            //TODO 更新到处失败记录 配置的策略是接不下了就拒绝
+            System.out.println("tiao guo ren wu");
+            //tre.printStackTrace();
+        } catch (Exception e) {
+            //TODO 更新到处失败记录
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void doExportTestData(ExportInfo exportInfo) {
-        List dataList = new ArrayList<MyOrderPageResp>(20000);
-        MyOrderPageResp myOrderPageResp = new MyOrderPageResp();
-        myOrderPageResp.setOrderNo("111");
-        myOrderPageResp.setDoublePride(2.3d);
-        myOrderPageResp.setTotalPrice(new BigDecimal(2.9d));
-        myOrderPageResp.setOrderStatus(2);
-        myOrderPageResp.setOrderTime(new Date());
-        for (int i = 0; i < 10000; i++) {
-            dataList.add(myOrderPageResp);
-            dataList.add(myOrderPageResp);
-        }
 
-        String fileName = "测试10w行数据";
-        ExportCoreInfo exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
-        //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
-        ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, 0);
     }
 
 }

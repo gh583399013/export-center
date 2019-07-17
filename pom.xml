@@ -10,7 +10,7 @@
     <modules>
         <module>export-center-api</module>
         <module>export-center-core</module>
-        <module>export-center-admin</module>
+        <!--<module>export-center-admin</module>-->
     </modules>
     <packaging>pom</packaging>
 
@@ -151,6 +151,12 @@
                 <groupId>com.ft</groupId>
                 <artifactId>export-demo-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- 业务依赖end -->
         </dependencies>
