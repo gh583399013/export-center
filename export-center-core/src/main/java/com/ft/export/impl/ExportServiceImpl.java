@@ -1,5 +1,6 @@
 package com.ft.export.impl;
 
+import com.ft.business.resp.MyOrderPageResp;
 import com.ft.export.api.IExportCommonService;
 import com.ft.export.api.IExportService;
 import com.ft.export.constant.ExportCenterCommonConfig;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,6 +34,7 @@ public class ExportServiceImpl implements IExportService{
 
     @Override
     public <T> void doExportJob(ExportInfo exportInfo, T t) {
+
         long beginTime = System.currentTimeMillis();
         long queryTime = 0L;
 
@@ -76,7 +80,23 @@ public class ExportServiceImpl implements IExportService{
     }
 
     @Override
-    public void asd() {
-        System.out.println("@@@@@@@@@@@@@@@@");
+    public void doExportTestData(ExportInfo exportInfo) {
+        List dataList = new ArrayList<MyOrderPageResp>(20000);
+        MyOrderPageResp myOrderPageResp = new MyOrderPageResp();
+        myOrderPageResp.setOrderNo("111");
+        myOrderPageResp.setDoublePride(2.3d);
+        myOrderPageResp.setTotalPrice(new BigDecimal(2.9d));
+        myOrderPageResp.setOrderStatus(2);
+        myOrderPageResp.setOrderTime(new Date());
+        for (int i = 0; i < 10000; i++) {
+            dataList.add(myOrderPageResp);
+            dataList.add(myOrderPageResp);
+        }
+
+        String fileName = "测试10w行数据";
+        ExportCoreInfo exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+        //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
+        ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, 0);
     }
+
 }

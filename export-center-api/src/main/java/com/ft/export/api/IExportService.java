@@ -1,9 +1,6 @@
 package com.ft.export.api;
 
 import com.ft.export.entity.ExportInfo;
-import com.ft.export.enums.ExportTypeEnum;
-
-import java.util.List;
 
 /**
  * @author mask
@@ -20,5 +17,5 @@ public interface IExportService {
      */
     <T> void doExportJob(ExportInfo exportInfo, T t);
 
-    void asd();
+    void doExportTestData(ExportInfo exportInfo);
 }

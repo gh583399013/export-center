@@ -1,10 +1,9 @@
 package com.ft.export;
 
-import com.ft.business.param.MyOrderParam;
+import com.ft.export.api.IExportService;
 import com.ft.export.entity.ExportInfo;
 import com.ft.export.enums.ExportTypeEnum;
 import com.ft.test.BaseTest;
-import com.ft.export.api.IExportService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,26 @@ public class JunitTest extends BaseTest {
         exportInfo.setFieldList(colName);
         exportInfo.setExportTypeEnum(ExportTypeEnum.OMS_MY_ORDER_PAGE);
         exportService.doExportJob(exportInfo, null);
+        System.out.println("22222");
+
+
+    }
+
+    @Test
+    public void test003(){
+        System.out.println("11111");
+
+        List<String> colName = new ArrayList<>();
+        colName.add("orderNo");
+        colName.add("orderTime");
+        colName.add("orderStatus");
+        colName.add("totalPrice");
+        colName.add("DoublePride");
+
+        ExportInfo exportInfo = new ExportInfo();
+        exportInfo.setFieldList(colName);
+        exportInfo.setExportTypeEnum(ExportTypeEnum.OMS_MY_ORDER_PAGE);
+        exportService.doExportTestData(exportInfo);
         System.out.println("22222");
 
 

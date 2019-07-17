@@ -214,24 +214,32 @@ public class ExcelCreator {
 	public static <T> void outputExcelToDisk(List<T> dataList, ExportCoreInfo exportFieldInfo, Integer sheetNo) {
 		try {
 			checkIlegal(dataList, exportFieldInfo);
-
 			Workbook workbook = createWorkBook(exportFieldInfo, sheetNo);
 			workbook = fillData(workbook, dataList, exportFieldInfo, sheetNo);
 			FileOutputStream fos = null;
+
+			File exportFile = null;
 			if (ExcelUtil.VERSION_2003.equals(exportFieldInfo.getVersion())) {
-				fos = new FileOutputStream(new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xls"));
+				exportFile = new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xls");
 			} else {
-				fos = new FileOutputStream(new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xlsx"));
+				exportFile = new File(exportFieldInfo.getFilePath() + exportFieldInfo.getFileName() + ".xlsx");
 			}
+			fos = new FileOutputStream(exportFile);
 			workbook.write(fos);
 			fos.close();
+			QiNiuYunFileUtil.uploadFile(exportFile.getAbsolutePath(), exportFile.getName());
+			exportFile.delete();
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		} catch (IOException e) {
+			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		} catch (ExportException e) {
+			e.printStackTrace();
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -304,8 +312,8 @@ public class ExcelCreator {
 			}else{
 				workbook = new XSSFWorkbook();
 			}
-			initStyle(workbook);
 		}
+		initStyle(workbook);
 
 		workbook.createSheet("编号" + sheetNo);
 		workbook = initTableHeader(workbook, exportFieldInfo.getHeadNameList(), sheetNo);
@@ -364,7 +372,7 @@ public class ExcelCreator {
 							cell.setCellValue(value.doubleValue());
 						}
 					} else if (FieldTypeEnum.Date.equals(exportField.fieldTypeEnum())) {
-						SimpleDateFormat sdf = new SimpleDateFormat(exportField.formatStr());
+						SimpleDateFormat sdf = new SimpleDateFormat(exportField.dateFormatPattern());
 						cell.setCellValue(sdf.format((Date) obj));
 					} else if (FieldTypeEnum.FormatStr.equals(exportField.fieldTypeEnum())) {
 						Map<String, String> valueDescMap = exportFieldCoreInfo.getValueDescMap();
