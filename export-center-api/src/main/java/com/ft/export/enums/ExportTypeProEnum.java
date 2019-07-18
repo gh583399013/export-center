@@ -29,8 +29,8 @@ public enum ExportTypeProEnum {
         }
     }
 
-    private final String dataMethod = "findByCondition";
-    private final String countMethod = "findCountByCondition";
+    public final String dataMethod = "findByCondition";
+    public final String countMethod = "findCountByCondition";
     private BusinessEnum businessEnum;
     private String beanId;
     private Class dataSourceClass;
