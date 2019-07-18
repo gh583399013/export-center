@@ -1,6 +1,7 @@
 package com.ft.export.entity;
 
 import com.ft.export.enums.ExportTypeEnum;
+import com.ft.export.enums.ExportTypeProEnum;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,4 +19,5 @@ public class ExportInfo implements Serializable{
     private Date exportTime;
     private ExportTypeEnum exportTypeEnum;
     private List<String> fieldList;
+    private ExportTypeProEnum exportTypeProEnum;
 }

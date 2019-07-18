@@ -2,6 +2,7 @@ package com.ft.export.util;
 
 import com.ft.export.api.IExportCommonService;
 import com.ft.export.enums.ExportTypeEnum;
+import com.ft.export.enums.ExportTypeProEnum;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,5 +28,9 @@ public class SpringContextUtil implements ApplicationContextAware {
     public IExportCommonService getExportCommonService(ExportTypeEnum exportTypeEnum){
         //(T)applicationContext.getBean(exportTypeEnum.getBeanId());
         return (IExportCommonService)applicationContext.getBean(exportTypeEnum.getBeanId(), exportTypeEnum.getDataSourceClass());
+    }
+
+    public Object getExportCoreService(ExportTypeProEnum exportTypeProEnum){
+        return applicationContext.getBean(exportTypeProEnum.getBeanId());
     }
 }

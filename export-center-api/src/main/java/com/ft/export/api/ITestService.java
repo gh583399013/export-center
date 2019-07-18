@@ -10,5 +10,5 @@ import com.ft.export.entity.ExportInfo;
 public interface ITestService {
     void testThreadPool();
     void testGetData(ExportInfo exportInfo);
-    void testGetBeanAndGetData();
+    <T> void testGetBeanAndGetData(ExportInfo exportInfo, T t);
 }

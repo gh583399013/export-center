@@ -1,5 +1,6 @@
 package com.ft.export.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.ft.business.resp.MyOrderPageResp;
 import com.ft.export.api.ITestService;
 import com.ft.export.dto.ExportCoreInfo;
@@ -7,12 +8,14 @@ import com.ft.export.entity.ExportInfo;
 import com.ft.export.enums.ExportTypeProEnum;
 import com.ft.export.util.ExcelCreator;
 import com.ft.export.util.ExcelUtil;
+import com.ft.export.util.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +34,9 @@ public class TestServiceImpl implements ITestService {
 
     @Value("${file.tmp.path}")
     private String fileTmpPath;
+
+    @Autowired
+    private SpringContextUtil springContextUtil;
 
     @Override
     public void testThreadPool() {
@@ -78,13 +84,17 @@ public class TestServiceImpl implements ITestService {
     }
 
     @Override
-    public void testGetBeanAndGetData() {
+    public <T> void testGetBeanAndGetData(ExportInfo exportInfo, T t) {
         try {
 //            Method method = ExportTypeEnum.OMS_MY_ORDER_PAGE.getDataSourceClass().getMethod("findByCondition");
 //            if(method != null){
 //                System.out.println("@@@@@@@@@@@@@@@@@@@");
 //            }
             System.out.println(ExportTypeProEnum.OMS_MY_ORDER_PAGE.getGetCountMethod().getName());
+
+            Object service = springContextUtil.getExportCoreService(exportInfo.getExportTypeProEnum());
+            Method method = exportInfo.getExportTypeProEnum().getGetDataMethod();
+            System.out.println(JSON.toJSONString(method.invoke(service, t)));
         } catch (Exception e) {
             e.printStackTrace();
         }

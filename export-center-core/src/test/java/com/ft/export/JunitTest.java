@@ -4,6 +4,7 @@ import com.ft.export.api.IExportService;
 import com.ft.export.api.ITestService;
 import com.ft.export.entity.ExportInfo;
 import com.ft.export.enums.ExportTypeEnum;
+import com.ft.export.enums.ExportTypeProEnum;
 import com.ft.test.BaseTest;
 import org.junit.After;
 import org.junit.Before;
@@ -86,7 +87,9 @@ public class JunitTest extends BaseTest {
 
     @Test
     public void test004(){
-        testService.testGetBeanAndGetData();
+        ExportInfo exportInfo = new ExportInfo();
+        exportInfo.setExportTypeProEnum(ExportTypeProEnum.OMS_MY_ORDER_PAGE);
+        testService.testGetBeanAndGetData(exportInfo, null);
     }
 
 }
