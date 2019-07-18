@@ -1,9 +1,12 @@
 package com.ft.export;
 
 import com.ft.export.api.IExportService;
+import com.ft.export.api.ITestService;
 import com.ft.export.entity.ExportInfo;
 import com.ft.export.enums.ExportTypeEnum;
 import com.ft.test.BaseTest;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,19 @@ public class JunitTest extends BaseTest {
 
     @Autowired
     private IExportService exportService;
+
+    @Autowired
+    private ITestService testService;
+
+    @Before
+    public void beforeFunc(){
+        System.out.println("================> 开始");
+    }
+
+    @After
+    public void afterFunc(){
+        System.out.println("================> 结束");
+    }
 
     @Test
     public void test001(){
@@ -68,5 +84,9 @@ public class JunitTest extends BaseTest {
 
     }
 
+    @Test
+    public void test004(){
+        testService.testGetBeanAndGetData();
+    }
 
 }

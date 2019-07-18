@@ -8,6 +8,7 @@ import com.ft.export.entity.ExportInfo;
  * @desc
  */
 public interface ITestService {
-    public void testThreadPool();
-    public void testGetData(ExportInfo exportInfo);
+    void testThreadPool();
+    void testGetData(ExportInfo exportInfo);
+    void testGetBeanAndGetData();
 }
