@@ -11,4 +11,5 @@ public interface ITestService {
     void testThreadPool();
     void testGetData(ExportInfo exportInfo);
     <T> void testGetBeanAndGetData(ExportInfo exportInfo, T t);
+    void testBuildExportInfo();
 }

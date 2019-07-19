@@ -1,6 +1,7 @@
 package com.ft.export.enums;
 
 import com.ft.business.api.IOrderService;
+import com.ft.business.resp.MyOrderPageResp;
 
 import java.lang.reflect.Method;
 
@@ -11,12 +12,13 @@ import java.lang.reflect.Method;
  */
 public enum ExportTypeProEnum {
 
-    OMS_MY_ORDER_PAGE(BusinessEnum.SYSTEM_OMS, "orderService", IOrderService.class, "OMS我的订单页导出");
+    OMS_MY_ORDER_PAGE(BusinessEnum.SYSTEM_OMS, "orderService", IOrderService.class, MyOrderPageResp.class, "OMS我的订单页导出");
 
-    ExportTypeProEnum(BusinessEnum businessEnum, String beanId, Class dataSourceClass, String desc) {
+    ExportTypeProEnum(BusinessEnum businessEnum, String beanId, Class dataSourceClass, Class dataClass, String desc) {
         this.businessEnum = businessEnum;
         this.beanId = beanId;
         this.dataSourceClass = dataSourceClass;
+        this.dataClass = dataClass;
         this.desc = desc;
         Method[] methods = dataSourceClass.getMethods();
         for (Method method : methods) {
@@ -34,6 +36,7 @@ public enum ExportTypeProEnum {
     private BusinessEnum businessEnum;
     private String beanId;
     private Class dataSourceClass;
+    private Class dataClass;
     private Method getDataMethod;
     private Method getCountMethod;
     private String desc;
@@ -60,6 +63,14 @@ public enum ExportTypeProEnum {
 
     public void setDataSourceClass(Class dataSourceClass) {
         this.dataSourceClass = dataSourceClass;
+    }
+
+    public Class getDataClass() {
+        return dataClass;
+    }
+
+    public void setDataClass(Class dataClass) {
+        this.dataClass = dataClass;
     }
 
     public Method getGetDataMethod() {

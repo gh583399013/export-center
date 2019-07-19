@@ -5,12 +5,12 @@ import com.ft.export.api.IExportService;
 import com.ft.export.constant.ExportCenterCommonConfig;
 import com.ft.export.dto.ExportCoreInfo;
 import com.ft.export.entity.ExportInfo;
-import com.ft.export.entity.ExportResult;
 import com.ft.export.enums.ExceptionTypeEnum;
 import com.ft.export.enums.ExportTypeProEnum;
 import com.ft.export.exception.ExportException;
 import com.ft.export.util.ExcelCreator;
 import com.ft.export.util.ExcelUtil;
+import com.ft.export.util.ExportCoreInfoBuildUtil;
 import com.ft.export.util.SpringContextUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,7 +68,7 @@ public class ExportServiceImpl implements IExportService{
             List<T> currentList = exportCommonService.findExportList(t);
             if(exportCoreInfo == null){
                 try {
-                    exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+                    exportCoreInfo = ExportCoreInfoBuildUtil.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -89,25 +89,42 @@ public class ExportServiceImpl implements IExportService{
      * @param <T>
      * @throws Exception
      */
-    private <T> ExportResult doExportJobProCore(ExportInfo exportInfo, T t) throws Exception{
+    private <T> void doExportJobProCore(ExportInfo exportInfo, T t) throws Exception{
         ExportTypeProEnum exportTypeProEnum = exportInfo.getExportTypeProEnum();
+
+        //初始化核心导出信息类
+        // TODO id自增文件名
+        String fileName = "asdasdasd";
+        ExportCoreInfo exportCoreInfo = null;
+        try {
+            exportCoreInfo = ExportCoreInfoBuildUtil.getExportCoreInfo(exportTypeProEnum.getDataClass(), exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+        } catch (Exception e) {
+            if(e instanceof ExportException){
+                throw e;
+            }else{
+                throw new ExportException(ExceptionTypeEnum.BUILD_EXPORT_INFO_FAIL);
+            }
+        }
+
+        //获取dubbo接口
         Object dataSourceService = springContextUtil.getExportCoreService(exportTypeProEnum);
         Integer totalCount = null;
         try {
             totalCount = Integer.valueOf(exportTypeProEnum.getGetCountMethod().invoke(dataSourceService, t).toString());
             if(totalCount <= 0){
-                return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
-                //throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+                //return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
+                throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
             }
         } catch (Exception e) {
-            return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
-            //throw ExportException.getExportException(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+            //return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+            if(e instanceof ExportException){
+                throw e;
+            }else{
+                throw ExportException.getExportException(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+            }
         }
 
-        String fileName = "测试10w行数据";
-        ExportCoreInfo exportCoreInfo = null;
         int sheetNo = 0;
-
         //0-2000 查询1次 2001-4000查询两次
         int totalPageCount = ((totalCount - 1) / ExportCenterCommonConfig.pageCount + 1);
         List<T> dataList = new ArrayList<>(100000);
@@ -118,26 +135,29 @@ public class ExportServiceImpl implements IExportService{
                 currentList = (List) exportTypeProEnum.getGetDataMethod().invoke(dataSourceService, t);
                 //TODO 这里要自己控制分页
                 if(currentList == null || currentList.size() == 0){
-                    return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
-                    //throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+                    //return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
+                    throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
                 }
-                //初始化核心导出信息类
-                if(exportCoreInfo == null){
-                    try {
-                        exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
-                    } catch (Exception e) {
-                        throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
-                    }
-                }
+//                //初始化核心导出信息类 这里通过注解里面的dataClass来初始化  不需要取数据了 取数据在初始化也不合理 应该先校验 导出信息合不合法 再取数据
+//                if(exportCoreInfo == null){
+//                    try {
+//                        exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+//                    } catch (Exception e) {
+//                        throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+//                    }
+//                }
             } catch (Exception e) {
-                return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
-                //throw ExportException.getExportException(dataSourceService.getClass(), exportTypeProEnum.getGetDataMethod());
+                //return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+                if(e instanceof ExportException){
+                    throw e;
+                }else{
+                    throw ExportException.getExportException(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+                }
             }
             dataList.addAll(currentList);
         }
         ExcelCreator.outputExcel(dataList, exportCoreInfo, sheetNo);
         //TODO 更新到处结果表
-        return ExportResult.exportSuccess();
     }
 
     @Override
@@ -169,7 +189,7 @@ public class ExportServiceImpl implements IExportService{
                 @Override
                 public void run() {
                     try {
-                        ExportResult exportResult = doExportJobProCore(exportInfo, t);
+                        doExportJobProCore(exportInfo, t);
                     }catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }

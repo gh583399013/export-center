@@ -46,6 +46,29 @@ public class JunitTest extends BaseTest {
     }
 
     @Test
+    public void doExportJobPro(){
+        List<String> colName = new ArrayList<>();
+        colName.add("orderNo");
+        colName.add("orderTime");
+        colName.add("orderStatus");
+        colName.add("totalPrice");
+        colName.add("DoublePride");
+
+        ExportInfo exportInfo = new ExportInfo();
+        exportInfo.setFieldList(colName);
+        //exportInfo.setExportTypeEnum(ExportTypeEnum.OMS_MY_ORDER_PAGE);
+        exportInfo.setExportTypeProEnum(ExportTypeProEnum.OMS_MY_ORDER_PAGE);
+        exportService.doExportJobPro(exportInfo, null);
+
+        //junit多线程测试的坑, 主线程休眠比较简单的解决方法
+        try {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void test002(){
         System.out.println("11111");
 
@@ -109,10 +132,17 @@ public class JunitTest extends BaseTest {
 
         //junit多线程测试的坑, 主线程休眠比较简单的解决方法
         try {
-            Thread.sleep(50000);
+            Thread.sleep(500000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void test006(){
+        ExportInfo exportInfo = new ExportInfo();
+        exportInfo.setExportTypeProEnum(ExportTypeProEnum.OMS_MY_ORDER_PAGE);
+        testService.testBuildExportInfo();
     }
 
 }

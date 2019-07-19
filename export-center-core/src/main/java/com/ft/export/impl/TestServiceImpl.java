@@ -8,6 +8,7 @@ import com.ft.export.entity.ExportInfo;
 import com.ft.export.enums.ExportTypeProEnum;
 import com.ft.export.util.ExcelCreator;
 import com.ft.export.util.ExcelUtil;
+import com.ft.export.util.ExportCoreInfoBuildUtil;
 import com.ft.export.util.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +81,7 @@ public class TestServiceImpl implements ITestService {
         String fileName = "测试10w行数据";
         ExportCoreInfo exportCoreInfo = null;
         try {
-            exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+            exportCoreInfo = ExportCoreInfoBuildUtil.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -100,6 +101,46 @@ public class TestServiceImpl implements ITestService {
             Object service = springContextUtil.getExportCoreService(exportInfo.getExportTypeProEnum());
             Method method = exportInfo.getExportTypeProEnum().getGetDataMethod();
             System.out.println(JSON.toJSONString(method.invoke(service, t)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void testBuildExportInfo() {
+        try {
+            MyOrderPageResp myOrderPageResp = new MyOrderPageResp();
+            myOrderPageResp.setOrderNo("SO19921226");
+            myOrderPageResp.setOrderTime(new Date());
+            myOrderPageResp.setOrderStatus(2);
+            myOrderPageResp.setTotalPrice(new BigDecimal(100.22));
+            myOrderPageResp.setDoublePride(399.12);
+
+            MyOrderPageResp myOrderPageResp2 = new MyOrderPageResp();
+            myOrderPageResp.setOrderNo("212312312");
+            myOrderPageResp.setOrderTime(new Date());
+            myOrderPageResp.setOrderStatus(2);
+            myOrderPageResp.setTotalPrice(new BigDecimal(100.22));
+            myOrderPageResp.setDoublePride(399.12);
+
+            List<String> colName = new ArrayList<>();
+            colName.add("orderNo");
+            colName.add("orderTime");
+            colName.add("orderStatus");
+            colName.add("totalPrice");
+            colName.add("DoublePride");
+
+            List<MyOrderPageResp> dataList = new ArrayList<>();
+            dataList.add(myOrderPageResp);
+            //dataList.add(myOrderPageResp2);
+
+
+            Integer totalCount = 2;
+
+
+            String fileName = "测试分sheet";
+
+            ExportCoreInfo exportCoreInfo = ExportCoreInfoBuildUtil.getExportCoreInfo(ExportTypeProEnum.OMS_MY_ORDER_PAGE.getDataClass(), colName, "D:/tmp/exportFiles", "@@@@", ExcelUtil.VERSION_2007);
         } catch (Exception e) {
             e.printStackTrace();
         }

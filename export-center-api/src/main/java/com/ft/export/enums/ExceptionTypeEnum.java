@@ -8,9 +8,10 @@ import java.io.Serializable;
  * @desc
  */
 public enum ExceptionTypeEnum implements Serializable{
-    FILL_ERROR(0, "填充数据报错"),
-    FIELD_EMPTY(1, "导出列头为空"),
-    DATA_EMPTY(2, "导出列头为空");
+    FILL_ERROR(1, "填充数据报错"),
+    FIELD_EMPTY(2, "导出列头为空"),
+    DATA_EMPTY(3, "导出数据为空"),
+    BUILD_EXPORT_INFO_FAIL(4, "构建导出coreInfo失败请看日志"),;
 
     private ExceptionTypeEnum(Integer code, String errorMsg){
         this.code = code;
