@@ -79,7 +79,7 @@ public class JunitTest extends BaseTest {
         ExportInfo exportInfo = new ExportInfo();
         exportInfo.setFieldList(colName);
         exportInfo.setExportTypeEnum(ExportTypeEnum.OMS_MY_ORDER_PAGE);
-        exportService.doExportTestData(exportInfo);
+        //exportService.doExportTestData(exportInfo);
         System.out.println("22222");
 
 
@@ -90,6 +90,29 @@ public class JunitTest extends BaseTest {
         ExportInfo exportInfo = new ExportInfo();
         exportInfo.setExportTypeProEnum(ExportTypeProEnum.OMS_MY_ORDER_PAGE);
         testService.testGetBeanAndGetData(exportInfo, null);
+    }
+
+    @Test
+    public void test005(){
+        List<String> colName = new ArrayList<>();
+        colName.add("orderNo");
+        colName.add("orderTime");
+        colName.add("orderStatus");
+        colName.add("totalPrice");
+        colName.add("DoublePride");
+
+        ExportInfo exportInfo = new ExportInfo();
+        exportInfo.setFieldList(colName);
+        //exportInfo.setExportTypeEnum(ExportTypeEnum.OMS_MY_ORDER_PAGE);
+        exportInfo.setExportTypeProEnum(ExportTypeProEnum.OMS_MY_ORDER_PAGE);
+        exportService.doExportJobPro(exportInfo, null);
+
+        //junit多线程测试的坑, 主线程休眠比较简单的解决方法
+        try {
+            Thread.sleep(50000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

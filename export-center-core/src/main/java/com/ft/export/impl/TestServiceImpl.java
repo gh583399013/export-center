@@ -78,9 +78,14 @@ public class TestServiceImpl implements ITestService {
         }
 
         String fileName = "测试10w行数据";
-        ExportCoreInfo exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+        ExportCoreInfo exportCoreInfo = null;
+        try {
+            exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
-        ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, 0);
+        ExcelCreator.outputExcel(dataList, exportCoreInfo, 0);
     }
 
     @Override

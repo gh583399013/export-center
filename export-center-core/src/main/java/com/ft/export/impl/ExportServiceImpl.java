@@ -5,7 +5,10 @@ import com.ft.export.api.IExportService;
 import com.ft.export.constant.ExportCenterCommonConfig;
 import com.ft.export.dto.ExportCoreInfo;
 import com.ft.export.entity.ExportInfo;
+import com.ft.export.entity.ExportResult;
+import com.ft.export.enums.ExceptionTypeEnum;
 import com.ft.export.enums.ExportTypeProEnum;
+import com.ft.export.exception.ExportException;
 import com.ft.export.util.ExcelCreator;
 import com.ft.export.util.ExcelUtil;
 import com.ft.export.util.SpringContextUtil;
@@ -17,7 +20,6 @@ import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,74 +60,84 @@ public class ExportServiceImpl implements IExportService{
             //如果查询次数 > 50次 sheetNo要变成1了 然后dataList要清空
             int nextSheetNo = (page - 1) / ExportCenterCommonConfig.sheetMaxQueryTimes;
             if(sheetNo != nextSheetNo){
-                ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
+                ExcelCreator.outputExcel(dataList, exportCoreInfo, sheetNo);
                 sheetNo = nextSheetNo;
                 dataList.clear();
             }
 
             List<T> currentList = exportCommonService.findExportList(t);
             if(exportCoreInfo == null){
-                exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+                try {
+                    exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             dataList.addAll(currentList);
         }
         //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
-        ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
+        ExcelCreator.outputExcel(dataList, exportCoreInfo, sheetNo);
 
         //TODO 更新到处结果表
     }
 
-    private <T> void doExportJobProCore(ExportInfo exportInfo, T t){
-        //IExportCommonService exportCommonService = springContextUtil.getExportCommonService(exportInfo.getExportTypeEnum());
-
+    /**
+     * 核心导出方法
+     * 这里可以不抛异常 返回一个异常结果类亦可
+     * @param exportInfo
+     * @param t
+     * @param <T>
+     * @throws Exception
+     */
+    private <T> ExportResult doExportJobProCore(ExportInfo exportInfo, T t) throws Exception{
         ExportTypeProEnum exportTypeProEnum = exportInfo.getExportTypeProEnum();
         Object dataSourceService = springContextUtil.getExportCoreService(exportTypeProEnum);
-
         Integer totalCount = null;
         try {
             totalCount = Integer.valueOf(exportTypeProEnum.getGetCountMethod().invoke(dataSourceService, t).toString());
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            if(totalCount <= 0){
+                return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
+                //throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+            }
+        } catch (Exception e) {
+            return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+            //throw ExportException.getExportException(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
         }
+
+        String fileName = "测试10w行数据";
+        ExportCoreInfo exportCoreInfo = null;
+        int sheetNo = 0;
 
         //0-2000 查询1次 2001-4000查询两次
         int totalPageCount = ((totalCount - 1) / ExportCenterCommonConfig.pageCount + 1);
         List<T> dataList = new ArrayList<>(100000);
-
-        String fileName = "测试10w行数据";
-        ExportCoreInfo exportCoreInfo = null;
-
-        int sheetNo = 0;
         for (int page = 1; page <= totalPageCount; page++) {
-            System.out.println("开始遍历10w行数据 第" + page + "页");
-
-            //如果查询次数 > 50次 sheetNo要变成1了 然后dataList要清空
-            int nextSheetNo = (page - 1) / ExportCenterCommonConfig.sheetMaxQueryTimes;
-            if(sheetNo != nextSheetNo){
-                ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
-                sheetNo = nextSheetNo;
-                dataList.clear();
-            }
-
+            //拉取数据
             List<T> currentList = null;
             try {
                 currentList = (List) exportTypeProEnum.getGetDataMethod().invoke(dataSourceService, t);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            if(exportCoreInfo == null){
-                exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+                //TODO 这里要自己控制分页
+                if(currentList == null || currentList.size() == 0){
+                    return ExportResult.exportFail(ExceptionTypeEnum.DATA_EMPTY);
+                    //throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+                }
+                //初始化核心导出信息类
+                if(exportCoreInfo == null){
+                    try {
+                        exportCoreInfo = ExcelCreator.getExportCoreInfo(currentList, exportInfo.getFieldList(), fileTmpPath, fileName, ExcelUtil.VERSION_2007);
+                    } catch (Exception e) {
+                        throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
+                    }
+                }
+            } catch (Exception e) {
+                return ExportResult.exportFail(exportTypeProEnum.getDataSourceClass(), exportTypeProEnum.getGetCountMethod());
+                //throw ExportException.getExportException(dataSourceService.getClass(), exportTypeProEnum.getGetDataMethod());
             }
             dataList.addAll(currentList);
         }
-        //如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
-        ExcelCreator.outputExcelToDisk(dataList, exportCoreInfo, sheetNo);
-
+        ExcelCreator.outputExcel(dataList, exportCoreInfo, sheetNo);
         //TODO 更新到处结果表
+        return ExportResult.exportSuccess();
     }
 
     @Override
@@ -142,7 +154,6 @@ public class ExportServiceImpl implements IExportService{
         }catch (TaskRejectedException tre){
             //TODO 更新到处失败记录 配置的策略是接不下了就拒绝
             System.out.println("tiao guo ren wu");
-            //tre.printStackTrace();
         } catch (Exception e) {
             //TODO 更新到处失败记录
             e.printStackTrace();
@@ -153,18 +164,19 @@ public class ExportServiceImpl implements IExportService{
     @Override
     public <T> void doExportJobPro(final ExportInfo exportInfo, final T t) {
         //TODO 记录到处记录
-        //加入到线程池执行核心到处功能
         try {
             taskExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    doExportJobProCore(exportInfo, t);
+                    try {
+                        ExportResult exportResult = doExportJobProCore(exportInfo, t);
+                    }catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             });
         }catch (TaskRejectedException tre){
             //TODO 更新到处失败记录 配置的策略是接不下了就拒绝
-            System.out.println("tiao guo ren wu");
-            //tre.printStackTrace();
         } catch (Exception e) {
             //TODO 更新到处失败记录
             e.printStackTrace();

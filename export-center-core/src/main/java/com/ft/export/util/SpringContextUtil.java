@@ -30,7 +30,19 @@ public class SpringContextUtil implements ApplicationContextAware {
         return (IExportCommonService)applicationContext.getBean(exportTypeEnum.getBeanId(), exportTypeEnum.getDataSourceClass());
     }
 
+//    public Object getExportCoreService(ExportTypeProEnum exportTypeProEnum){
+//        return applicationContext.getBean(exportTypeProEnum.getBeanId(), exportTypeProEnum.getDataSourceClass());
+//    }
+
+    /**
+     * 根据id从上下文获取dubbo接口
+     * 或者根据类型从上下文获取dubbo接口
+     * @param exportTypeProEnum
+     * @return
+     */
     public Object getExportCoreService(ExportTypeProEnum exportTypeProEnum){
+        //applicationContext.getBean(exportTypeProEnum.getDataSourceClass());
         return applicationContext.getBean(exportTypeProEnum.getBeanId());
     }
+
 }

@@ -165,7 +165,7 @@ public class ExcelCreator {
      * @param <T>
      * @return
      */
-	public static <T>ExportCoreInfo getExportCoreInfo(List<T> dataList, List<String> fieldList, String filePath, String fileName, String version){
+	public static <T>ExportCoreInfo getExportCoreInfo(List<T> dataList, List<String> fieldList, String filePath, String fileName, String version) throws Exception{
 		Class originClazz = dataList.get(0).getClass();
 
 		//查询字段的详细导出信息 丢入map
@@ -192,7 +192,7 @@ public class ExcelCreator {
 					try {
 						exportFieldDto.setFieldGetterMethod(clazz.getDeclaredMethod(getGetterName(field.getName())));
 					} catch (NoSuchMethodException e) {
-
+                        throw new ExportException(field.getName() + "没有getter方法");
 					}
 					exportFieldCoreInfoMap.put(field.getName(), exportFieldDto);
 				}
@@ -214,24 +214,26 @@ public class ExcelCreator {
 		exportCoreInfo.setHeadNameList(headNameList);
 		exportCoreInfo.setFieldCoreInfoMap(exportFieldCoreInfoMap);
 		exportCoreInfo.setVersion(version);
+        checkExportCoreInfo(exportCoreInfo);
 		return exportCoreInfo;
 	}
 
-	private static <T> void checkIllegal(List<T> dataList, ExportCoreInfo exportFieldInfo){
+    /**
+     * 奸
+     * @param exportFieldInfo
+     */
+	private static void checkExportCoreInfo(ExportCoreInfo exportFieldInfo){
 		if(StringUtils.isEmpty(exportFieldInfo.getFilePath())){
 			throw new ExportException(ExceptionTypeEnum.FIELD_EMPTY);
 		}
 		if(CollectionUtils.isEmpty(exportFieldInfo.getFieldList())){
 			throw new ExportException(ExceptionTypeEnum.FIELD_EMPTY);
 		}
-		if(CollectionUtils.isEmpty(dataList)){
-			throw new ExportException(ExceptionTypeEnum.DATA_EMPTY);
-		}
 	}
 
-	public static <T> void outputExcelToDisk(List<T> dataList, ExportCoreInfo exportFieldInfo, Integer sheetNo) {
+	public static <T> void outputExcel(List<T> dataList, ExportCoreInfo exportFieldInfo, Integer sheetNo) {
 		try {
-			checkIllegal(dataList, exportFieldInfo);
+            checkExportCoreInfo(exportFieldInfo);
 			Workbook workbook = createWorkBook(exportFieldInfo, sheetNo);
 			workbook = fillData(workbook, dataList, exportFieldInfo, sheetNo);
 			FileOutputStream fos = null;
@@ -459,9 +461,13 @@ public class ExcelCreator {
 		String fileName = "测试分sheet";
 
 		ExportCoreInfo exportCoreInfo = null;
-		exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, colName, "D:/tmp/exportFiles", fileName, ExcelUtil.VERSION_2007);
 
-		List<MyOrderPageResp> allList = new ArrayList<>();
+        try {
+            exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, colName, "D:/tmp/exportFiles", fileName, ExcelUtil.VERSION_2007);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<MyOrderPageResp> allList = new ArrayList<>();
 
 		int sheetNo = 0;
 		for (int i = 1; i <= totalPageCount; i++) {
@@ -469,18 +475,22 @@ public class ExcelCreator {
 			int nextSheetNo = (i - 1) / ExportCenterCommonConfig.sheetMaxQueryTimes;
 			if(sheetNo != nextSheetNo){
 				System.out.println("@@@@@@@@@@@ sheetNo" + sheetNo);
-				ExcelCreator.outputExcelToDisk(allList, exportCoreInfo, sheetNo);
+				ExcelCreator.outputExcel(allList, exportCoreInfo, sheetNo);
 				sheetNo = nextSheetNo;
 				allList.clear();
 			}
 			if(exportCoreInfo == null){
-				exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, colName, "D:\\tmp\\exportFiles\\qweqwe", fileName, ExcelUtil.VERSION_2007);
-			}
+                try {
+                    exportCoreInfo = ExcelCreator.getExportCoreInfo(dataList, colName, "D:\\tmp\\exportFiles\\qweqwe", fileName, ExcelUtil.VERSION_2007);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 			allList.addAll(dataList);
 		}
 		System.out.println("@@@@@@@@@@@ sheetNo" + sheetNo);
 		//如果只有一个sheet, 或者到了最后一个sheet 因为没有触发sheetNo != nextSheetNo 所以在这里手动生成
-		ExcelCreator.outputExcelToDisk(allList, exportCoreInfo, sheetNo);
+		ExcelCreator.outputExcel(allList, exportCoreInfo, sheetNo);
 
 
 
